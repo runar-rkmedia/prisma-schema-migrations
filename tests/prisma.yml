@@ -1,0 +1,17 @@
+endpoint: ${env:PRISMA_ENDPOINT}
+generate:
+  - generator: typescript-client
+    output: ../src/prisma-client/
+datamodel:
+  - constants.graphql
+  - internal.graphql
+  - object.graphql
+  - metadata.graphql
+  - user.graphql
+  - migrations.graphql
+
+hooks:
+  post-deploy:
+    - graphql get-schema -p prisma
+    - graphql codegen
+    - gql-gen -o

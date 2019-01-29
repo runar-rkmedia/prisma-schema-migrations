@@ -1,0 +1,40 @@
+{
+  "name": "prisma-schema-migrator",
+  "version": "0.1.0",
+  "description": "Unofficial migrations-handler for prisma",
+  "main": "dist/cli.js",
+  "types": "dist/cli.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/runar-rkmedia/prisma-migrations"
+  },
+  "author": "Runar Kristoffersen <runar@rkmedia.no>",
+  "license": "MIT",
+  "scripts": {
+    "prepare" : "yarn run build",
+    "start": "ts-node-dev src/cli.ts",
+    "build": "rm -rf dist && tsc && chmod +x dist/cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    "template.js"
+  ],
+  "bin": {
+    "prisma-schema-migrator": "dist/cli.js"
+  },
+  "dependencies": {
+    "change-case": "^3.1.0",
+    "graphql-got": "^0.1.2",
+    "js-yaml": "^3.12.1",
+    "yargs": "^12.0.5"
+  },
+  "devDependencies": {
+    "@types/change-case": "^2.3.1",
+    "@types/js-yaml": "^3.12.0",
+    "@types/node": "^10.12.18",
+    "@types/yargs": "^12.0.8",
+    "ts-node": "^8.0.2",
+    "ts-node-dev": "^1.0.0-pre.32",
+    "typescript": "^3.2.4"
+  }
+}

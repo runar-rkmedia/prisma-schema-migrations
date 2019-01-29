@@ -1,0 +1,5 @@
+type Migration  {
+  id: ID! @unique
+  createdAt: DateTime!
+  migrationName: String! @unique
+}
