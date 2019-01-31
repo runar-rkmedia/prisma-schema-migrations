@@ -11,7 +11,7 @@
   "author": "Runar Kristoffersen <runar@rkmedia.no>",
   "license": "MIT",
   "scripts": {
-    "prepare" : "yarn run build",
+    "prepare": "yarn run build",
     "start": "ts-node-dev src/cli.ts",
     "build": "rm -rf dist && tsc && chmod +x dist/cli.js"
   },
@@ -23,9 +23,14 @@
     "prisma-schema-migrator": "dist/cli.js"
   },
   "dependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/find-up": "^2.1.1",
+    "chalk": "^2.4.2",
     "change-case": "^3.1.0",
+    "find-up": "^3.0.0",
     "graphql-got": "^0.1.2",
     "js-yaml": "^3.12.1",
+    "prisma": "^1.25.4",
     "yargs": "^12.0.5"
   },
   "devDependencies": {

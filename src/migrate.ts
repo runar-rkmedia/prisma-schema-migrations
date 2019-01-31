@@ -2,18 +2,22 @@ import vm from 'vm'
 import { exec } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import { MIGRATION_PATH } from './cli'
+import { config } from './cli'
 import setHead, { checkValidHead } from './setHead'
 import { client, getHeadDirs, getMigrationHead } from './utils'
 
 export const deployFromDir = (directory, params = '') => new Promise(
   (resolve, reject) => {
     exec(
-      `prisma deploy ${params}`,
+      `PRISMA_ENDPOINT=${config.prismaEndpoint} prisma deploy ${params}`,
       {
         cwd: directory,
       },
       (error, stdout, stderr) => {
+        if (error && error.toString().indexOf('prisma: command not found') !== -1) {
+          console.log({error, stdout, stderr})
+          throw new Error('Prisma not installed. Please install it.')
+        }
         if (error) {
           console.log(stdout)
           reject({ error, stdout, stderr })
@@ -36,7 +40,7 @@ const runJsFile = async (file, action: 'upBefore' | 'upAfter' | 'downBefore' | '
     module,
     require,
   }))
-  let result: {prismaParams?: string}
+  let result: { prismaParams?: string }
   try {
     result = await sandboxedFunc({
       action,
@@ -48,13 +52,13 @@ const runJsFile = async (file, action: 'upBefore' | 'upAfter' | 'downBefore' | '
   if (!result) {
     throw new Error(`Did not recieve result from job ${file}`)
   }
-  return {...result}
+  return { ...result }
 }
 
-const migrateFromDir = async (dir, {down, prismaParams}: {down?: boolean, prismaParams?: string} = {}) => {
+const migrateFromDir = async (dir, { down, prismaParams }: { down?: boolean, prismaParams?: string } = {}) => {
   const folderName = path.basename(dir)
   const result = await runJsFile(
-    path.join(MIGRATION_PATH, folderName, 'job.js'),
+    path.join(config.migrationsDir, folderName, 'job.js'),
     down ? 'downBefore' : 'upBefore')
   try {
     const deployResult = await deployFromDir(dir, prismaParams || result.prismaParams)
@@ -73,7 +77,7 @@ const migrateFromDir = async (dir, {down, prismaParams}: {down?: boolean, prisma
     process.exit()
   }
   await runJsFile(
-    path.join(MIGRATION_PATH, folderName, 'job.js'),
+    path.join(config.migrationsDir, folderName, 'job.js'),
     down ? 'downAfter' : 'upAfter')
   const migration = await setHead(folderName)
   return migration
@@ -87,7 +91,7 @@ interface IMigrationOptions {
 
 const performMigrations = async ({ migrateDownwards, to, ...rest }: Partial<IMigrationOptions> = {}) => {
   const head = await getMigrationHead()
-  let dirs = getHeadDirs()
+  let dirs = getHeadDirs(config.migrationsDir)
   if (!!migrateDownwards) {
     dirs.reverse()
   }
@@ -110,7 +114,7 @@ const performMigrations = async ({ migrateDownwards, to, ...rest }: Partial<IMig
   dirNames.forEach(console.info)
 
   for (const dir of dirs) {
-    await (migrateFromDir(dir, {down: migrateDownwards, ...rest}))
+    await (migrateFromDir(dir, { down: migrateDownwards, ...rest }))
 
   }
 }

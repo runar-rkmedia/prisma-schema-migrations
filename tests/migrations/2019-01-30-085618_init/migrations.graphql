@@ -4,7 +4,6 @@ type Migration  {
   migrationName: String! @unique
 }
 
-type Test {
-  foo: String
-  bas: Boolean
-}
+# type Test {
+#   foo: String
+# }

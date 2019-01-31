@@ -1,0 +1,36 @@
+# Provided docker-compose-file to easily spin up tests
+version: '3'
+
+services:
+  postgres:
+    image: postgres:10.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: papi
+      POSTGRES_PASSWORD: papi
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  prisma:
+    image: prismagraphql/prisma:1.24
+    ports:
+      - "4862:4862"
+    environment:
+      PRISMA_CONFIG: |
+        port: 4862
+        databases:
+          default:
+            connector: postgres
+            host: postgres
+            port: 5432
+            user: papi
+            database: papi
+            password: "papi"
+            migrations: true
+    depends_on:
+      - postgres
+    restart: on-failure
+
+volumes:
+  db:

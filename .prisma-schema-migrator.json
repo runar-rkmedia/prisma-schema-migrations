@@ -1,0 +1,5 @@
+{
+  "schemaDir": "tests",
+  "prismaEndpoint": "http://localhost:4862"
+
+}

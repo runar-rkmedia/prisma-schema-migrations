@@ -1,9 +1,13 @@
 import { lstatSync, readdirSync } from 'fs'
 import graphqlGot from 'graphql-got'
 import { join } from 'path'
-import { MIGRATION_PATH } from './cli'
+import { config } from './cli';
 
-export const client = (input: { query: string, variables?: any } | string) => {
+export const client = (input: { query: string, variables?: any, endpoint?: string } | string, noExit?: boolean) => {
+  const endpoint = (typeof input !== 'string' && input.endpoint) ||  config.prismaEndpoint
+  if (!endpoint) {
+    throw new Error('No prisma-endpoint set')
+  }
   const args = typeof input === 'string'
     ? {
       query: input,
@@ -12,23 +16,26 @@ export const client = (input: { query: string, variables?: any } | string) => {
       ...input,
     }
   return graphqlGot(
-    process.env.PRISMA_ENDPOINT,
+    endpoint,
     args,
   )
     .catch(
       (err) => {
         console.error(err)
         const { query, ...rest } = args
-        console.error('This error occured with these params to graphql-endpoint: ', query, rest)
+        console.error('This error occured with these params to ${endpoint}: ', query, rest)
         process.exit()
       },
     )
     .then(
       (({ body, errors }: any) => {
         if (errors) {
+          if (noExit) {
+            throw errors
+          }
           console.error(errors[0].message)
           const { query, ...rest } = args
-          console.error('This error occured with these params to graphql-endpoint: ', query, rest)
+          console.error('This error occured with these params to ${endpoint}: ', query, rest)
           process.exit()
         }
         return body
@@ -36,9 +43,9 @@ export const client = (input: { query: string, variables?: any } | string) => {
       ))
 }
 
-export const getHeadDirs = () => {
-  return readdirSync(MIGRATION_PATH)
-    .map((name) => join(MIGRATION_PATH, name))
+export const getHeadDirs = (migrationPath = config.migrationsDir) => {
+  return readdirSync(migrationPath)
+    .map((name) => join(migrationPath, name))
     .filter((p) => lstatSync(p).isDirectory())
 }
 
@@ -52,17 +59,23 @@ export const formatDate = (date: Date) => {
   return `${y}-${m}-${d}-${h}${mm}${s}`
 }
 
-export const getMigrationHead = async () => {
+export const getMigrationHead = async ({noExit}: {noExit?: boolean} = {}) => {
   const result = await client(`
     query {
       migrations{
         migrationName
   }
-}`)
+}`, noExit)
   const { migrations } = result
+  if (!migrations) {
+    if (noExit) {
+      return result
+    }
+    process.exit()
+  }
   if (migrations.length < 1) {
-    console.error('Could not find the migrations')
-    console.log(result)
+    console.error('Could not find the head (migrationName) in the db')
+    console.error('If you are sure of what the current head should be, run set-head')
     process.exit()
   }
   if (migrations.length > 1) {
