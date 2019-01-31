@@ -46,13 +46,27 @@ type Migration  {
 }
 ```
 
+## Settings
+
+You can set settings with a `.prisma-schema-migrator.json`-file in your project.
+
+It takes a few parameters:
+
+|   |   |   |
+|---|---|---|
+|   |   |   |
+|   |   |   |
+
+
+schemaDir |  `string` | The directory of the schema. Defaults to `./database`
+prismaEndpoint |  `string` | Endpoint of your prisma-server
+migrationsDir |  `string` | The directory to generate magrtions to `./<schemaDir>/migrations`
+generateDiff |  `boolean | string` | If you want to generate a diff, set it to true, or as a string for a command. Two args will be appended, the two folders of the diff to generate.
+
 ## The CLI
 
 The cli has a help-screen, accessable from `prisma-schema-migrator --help`, which will
 list all options.
-
-By default, it expects your schema-directory to be in `./database`. You can
-set it with `-s` or `-schema-dir`.
 
 ### Creating migrations
 
@@ -60,7 +74,7 @@ set it with `-s` or `-schema-dir`.
 prisma-schema-migrator create <name>
 ```
 
-This will create a migration in the `<schema-dir>/migrations`-directory, with a
+This will create a migration in the `<migrationDir>`-directory, with a
 name being `<current-date>_<name>`. The name you specify should be short and
 descriptive of the migration-step. The name of the folder will be used as the
 `migrationName` in the `Migration`-table. You should not rename this folder.
@@ -92,3 +106,10 @@ You may also return an object of arguments:
 ```
 prismaParams: any arguments you want to pass to `prisma deploy`, like -f (be careful)
 ```
+
+#### Diff
+
+By default, a diff will be generated from the previous migration, if it exists.
+
+From `template.js`, you can specify where in the file you want it to be generated
+with `{{diff}}`. Indentation will be kept at the same level.
