@@ -1,6 +1,6 @@
 {
   "name": "prisma-schema-migrator",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "description": "Unofficial migrations-handler for prisma",
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
@@ -23,6 +23,7 @@
     "prisma-schema-migrator": "dist/cli.js"
   },
   "dependencies": {
+    "@indico/logging-js": "^1.0.2",
     "@types/chalk": "^2.2.0",
     "@types/find-up": "^2.1.1",
     "chalk": "^2.4.2",
