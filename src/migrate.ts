@@ -46,6 +46,7 @@ const runJsFile = async (
       console,
       module,
       require,
+      process,
     })
   )
   let result: { prismaParams?: string }

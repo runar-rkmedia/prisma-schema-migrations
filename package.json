@@ -1,6 +1,6 @@
 {
   "name": "prisma-schema-migrator",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Unofficial migrations-handler for prisma",
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
