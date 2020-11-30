@@ -12,9 +12,13 @@ const logger = createLogger('migrate')
 export const deployFromDir = (directory, params = '') =>
   new Promise((resolve, reject) => {
     exec(
-      `PRISMA_ENDPOINT=${config.prismaEndpoint} prisma deploy ${params}`,
+      `prisma deploy ${params}`,
       {
         cwd: directory,
+        env: {
+          PRISMA_ENDPOINT: config.prismaEndpoint,
+          ...process.env,
+        },
       },
       (err, stdout, stderr) => {
         if (err && err.toString().indexOf('prisma: command not found') !== -1) {
